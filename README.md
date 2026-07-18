@@ -60,7 +60,7 @@ Abre `http://localhost:8080` en el navegador, inicia sesión con el usuario que 
 ## 4. Subir a GitHub
 
 ```bash
-cd visitas-pastorales
+cd pastor360
 git init
 git add .
 git commit -m "Pastor360 - versión inicial"
@@ -69,7 +69,7 @@ git commit -m "Pastor360 - versión inicial"
 Crea un repositorio vacío en [github.com/new](https://github.com/new) (sin README, sin .gitignore) y luego:
 
 ```bash
-git remote add origin https://github.com/TU_USUARIO/visitas-pastorales.git
+git remote add origin https://github.com/TU_USUARIO/pastor360.git
 git branch -M main
 git push -u origin main
 ```
@@ -77,9 +77,9 @@ git push -u origin main
 ## 5. Desplegar en Vercel
 
 1. Entra a [vercel.com](https://vercel.com) e inicia sesión con tu cuenta de GitHub.
-2. **Add New… > Project** → selecciona el repositorio `visitas-pastorales`.
+2. **Add New… > Project** → selecciona el repositorio `pastor360`.
 3. Vercel detecta que es un sitio estático — no necesitas cambiar ninguna configuración. Click **Deploy**.
-4. En unos segundos tendrás tu URL pública (ej. `visitas-pastorales.vercel.app`), accesible desde el teléfono y la PC.
+4. En unos segundos tendrás tu URL pública (ej. `pastor360.vercel.app`), accesible desde el teléfono y la PC.
 
 ### Instalarla como app en el teléfono
 - **Android (Chrome)**: menú ⋮ → "Añadir a pantalla de inicio".

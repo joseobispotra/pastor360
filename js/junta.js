@@ -137,7 +137,7 @@ function itemHtml(t) {
   `;
 }
 
-function abrirFormularioTema(tema = null) {
+export function abrirFormularioTema(tema = null) {
   document.getElementById("modal-titulo").textContent = tema ? "Editar tema de junta" : "Nuevo tema de junta";
   document.getElementById("modal-body").innerHTML = `
     <div class="form-grid">

@@ -12,27 +12,23 @@ import {
   serverTimestamp,
   Timestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-import { IGLESIAS } from "./visitas.js";
-import { cerrarModal } from "./modal.js";
+import { IGLESIAS, listenVisitasDesde } from "./visitas.js";
+import { cerrarModal, abrirDetalleVisita } from "./modal.js";
+import { listenTemasJunta, abrirFormularioTema } from "./junta.js";
 import { mostrarToast } from "./toast.js";
-import { escapeHtml } from "./util.js";
+import { escapeHtml, enlaceGoogleCalendar, descargarICS } from "./util.js";
 
 export const CATEGORIAS_EVENTO = ["Culto especial", "Bautismo", "Reunión de junta", "Actividad juvenil", "Campamento", "Otro"];
 export const LUGARES_EVENTO = [...IGLESIAS, "General"];
 
 const col = collection(db, "eventos");
 let eventosCache = [];
+let visitasCache = [];
+let temasCache = [];
+let itemsCombinados = [];
 
 function mapDoc(d) {
   return { id: d.id, ...d.data() };
-}
-
-export function listenEventos(callback) {
-  const q = query(col, orderBy("fecha", "asc"));
-  return onSnapshot(q, (snap) => {
-    eventosCache = snap.docs.map(mapDoc);
-    callback(eventosCache);
-  });
 }
 
 /** Eventos de hoy en adelante, para el resumen de "Hoy". */
@@ -86,30 +82,121 @@ export function initCalendario() {
   const listaEl = document.getElementById("lista-eventos");
   document.getElementById("btn-nuevo-evento").addEventListener("click", () => abrirFormularioEvento());
 
-  listenEventos((eventos) => {
-    listaEl.innerHTML =
-      eventos.length === 0
-        ? `<div class="empty-state"><div class="glyph">🗓️</div>Aún no has agregado actividades. Comienza con "Nuevo evento".</div>`
-        : eventos.map(itemHtml).join("");
+  const inicioHoy = new Date();
+  inicioHoy.setHours(0, 0, 0, 0);
+
+  listenEventosProximos((eventos) => {
+    eventosCache = eventos;
+    renderLista(listaEl);
+  });
+  listenVisitasDesde(inicioHoy, (visitas) => {
+    visitasCache = visitas;
+    renderLista(listaEl);
+  });
+  listenTemasJunta((temas) => {
+    temasCache = temas.filter((t) => t.fechaLimite && t.estado !== "resuelto");
+    renderLista(listaEl);
   });
 
   listaEl.addEventListener("click", (e) => {
-    const li = e.target.closest(".visit-item");
+    const li = e.target.closest("[data-origen]");
     if (!li) return;
-    const evento = eventosCache.find((ev) => ev.id === li.dataset.id);
-    if (evento) abrirFormularioEvento(evento);
+    const item = itemsCombinados.find((x) => x.origen === li.dataset.origen && x.id === li.dataset.id);
+    if (!item) return;
+
+    const accionEl = e.target.closest("[data-action]");
+    if (accionEl?.dataset.action === "ics") {
+      descargarICS({ titulo: item.titulo, inicio: item.fechaInicio, fin: item.fechaFin, detalles: item.etiqueta, ubicacion: item.lugar || "" });
+      return;
+    }
+    if (accionEl?.dataset.action === "gcal") return; // deja que el enlace abra Google Calendar normalmente
+
+    abrirEditor(item);
   });
 }
 
-function itemHtml(ev) {
-  const pasado = (ev.fecha?.toDate ? ev.fecha.toDate() : new Date(ev.fecha)) < new Date();
+function normalizarEvento(ev) {
+  const inicio = ev.fecha?.toDate ? ev.fecha.toDate() : new Date(ev.fecha);
+  return {
+    origen: "evento",
+    id: ev.id,
+    fechaInicio: inicio,
+    fechaFin: new Date(inicio.getTime() + 60 * 60000),
+    titulo: ev.titulo,
+    etiqueta: ev.categoria,
+    lugar: ev.lugar,
+    raw: ev,
+  };
+}
+
+function normalizarVisita(v) {
+  const inicio = v.fecha?.toDate ? v.fecha.toDate() : new Date(v.fecha);
+  return {
+    origen: "visita",
+    id: v.id,
+    fechaInicio: inicio,
+    fechaFin: new Date(inicio.getTime() + 30 * 60000),
+    titulo: `Visita: ${v.feligres?.nombre || "(sin nombre)"}`,
+    etiqueta: "Visita pastoral",
+    lugar: v.iglesia,
+    raw: v,
+  };
+}
+
+function normalizarTema(t) {
+  const base = t.fechaLimite?.toDate ? t.fechaLimite.toDate() : new Date(t.fechaLimite);
+  const inicio = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 9, 0);
+  return {
+    origen: "junta",
+    id: t.id,
+    fechaInicio: inicio,
+    fechaFin: new Date(inicio.getTime() + 30 * 60000),
+    titulo: `Junta: ${t.titulo}`,
+    etiqueta: "Fecha límite de tema de junta",
+    lugar: t.iglesia,
+    raw: t,
+  };
+}
+
+function abrirEditor(item) {
+  if (item.origen === "evento") abrirFormularioEvento(item.raw);
+  else if (item.origen === "visita") abrirDetalleVisita(item.raw);
+  else if (item.origen === "junta") abrirFormularioTema(item.raw);
+}
+
+function renderLista(listaEl) {
+  itemsCombinados = [
+    ...eventosCache.map(normalizarEvento),
+    ...visitasCache.map(normalizarVisita),
+    ...temasCache.map(normalizarTema),
+  ].sort((a, b) => a.fechaInicio - b.fechaInicio);
+
+  listaEl.innerHTML =
+    itemsCombinados.length === 0
+      ? `<div class="empty-state"><div class="glyph">🗓️</div>Aún no tienes nada próximo. Comienza con "Nuevo evento".</div>`
+      : itemsCombinados.map(itemHtml).join("");
+}
+
+function itemHtml(item) {
+  const pasado = item.fechaInicio < new Date();
+  const enlaceGcal = enlaceGoogleCalendar({
+    titulo: item.titulo,
+    inicio: item.fechaInicio,
+    fin: item.fechaFin,
+    detalles: item.etiqueta,
+    ubicacion: item.lugar || "",
+  });
   return `
-    <li class="visit-item" data-id="${ev.id}"${pasado ? ' style="opacity:.6;"' : ""}>
+    <li class="visit-item" data-origen="${item.origen}" data-id="${item.id}"${pasado ? ' style="opacity:.6;"' : ""}>
       <div class="info">
-        <div class="name">${escapeHtml(ev.titulo)}</div>
-        <div class="meta">${escapeHtml(ev.lugar)} · ${escapeHtml(ev.categoria)}</div>
+        <div class="name">${escapeHtml(item.titulo)}</div>
+        <div class="meta">${escapeHtml(item.etiqueta)}${item.lugar ? " · " + escapeHtml(item.lugar) : ""}</div>
       </div>
-      <span class="time-badge">${formatearFechaHora(ev.fecha)}</span>
+      <span class="time-badge">${formatearFechaHora(item.fechaInicio)}</span>
+      <div class="actions">
+        <a class="icon-btn" data-action="gcal" href="${enlaceGcal}" target="_blank" rel="noopener" title="Agregar a Google Calendar">📅</a>
+        <button class="icon-btn" data-action="ics" type="button" title="Descargar .ics (Apple/Outlook)">⬇️</button>
+      </div>
       ${pasado ? `<span class="badge badge-reprogramada">Pasado</span>` : ""}
     </li>
   `;

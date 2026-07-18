@@ -53,6 +53,12 @@ export function listenVisitasHoy(callback) {
   return listenVisitasRango(inicioDelDia(hoy), finDelDia(hoy), callback);
 }
 
+/** Visitas de hoy en adelante, para fusionarlas en el Calendario de actividades. */
+export function listenVisitasDesde(fechaInicio, callback) {
+  const q = query(col, where("fecha", ">=", Timestamp.fromDate(fechaInicio)), orderBy("fecha", "asc"));
+  return onSnapshot(q, (snap) => callback(snap.docs.map(mapDoc)));
+}
+
 export async function crearVisita(datos) {
   return addDoc(col, {
     iglesia: datos.iglesia,

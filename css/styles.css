@@ -346,6 +346,7 @@ button { font-family: inherit; }
   display: flex; align-items: center; justify-content: center;
 }
 .icon-btn:hover { background: rgba(0,0,0,0.09); }
+a.icon-btn { text-decoration: none; }
 
 .badge {
   display: inline-block;

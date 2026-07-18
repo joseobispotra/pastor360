@@ -15,7 +15,7 @@ import {
 import { IGLESIAS, colorClaseIglesia } from "./visitas.js";
 import { cerrarModal } from "./modal.js";
 import { mostrarToast } from "./toast.js";
-import { escapeHtml } from "./util.js";
+import { escapeHtml, telefonoWhatsApp } from "./util.js";
 
 const col = collection(db, "miembros");
 const contactosCol = collection(db, "contactos");
@@ -142,6 +142,7 @@ export function initMiembros() {
     if (!miembro) return;
 
     const btn = e.target.closest("[data-action]");
+    if (btn?.dataset.action === "llamar" || btn?.dataset.action === "whatsapp") return;
     if (btn?.dataset.action === "contacto") {
       abrirFormularioContacto(miembro);
     } else {
@@ -154,6 +155,9 @@ function itemHtml(m) {
   const ultimoTexto = m.ultimoContacto
     ? `Último contacto: ${diasDesde(m.ultimoContacto.fecha)} (${m.ultimoContacto.tipo === "llamada" ? "llamada" : "mensaje"})`
     : "";
+  const numeroWa = telefonoWhatsApp(m.telefono);
+  const numeroTel = (m.telefono || "").replace(/\D/g, "");
+  const mensaje = `Hola ${m.nombre || ""}, soy el pastor. Quería saludarte y saber cómo estás. Dios te bendiga.`;
   return `
     <li class="visit-item" data-id="${m.id}">
       <span class="church-dot ${colorClaseIglesia(m.iglesia)}"></span>
@@ -163,6 +167,8 @@ function itemHtml(m) {
         ${ultimoTexto ? `<div class="meta ultimo-contacto">${ultimoTexto}</div>` : ""}
       </div>
       <div class="actions">
+        ${numeroTel ? `<a class="btn btn-outline btn-llamar" data-action="llamar" href="tel:${numeroTel}">Llamar</a>` : ""}
+        ${numeroWa ? `<a class="btn btn-whatsapp" data-action="whatsapp" href="https://wa.me/${numeroWa}?text=${encodeURIComponent(mensaje)}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
         <button class="icon-btn" data-action="contacto" title="Registrar contacto">📞</button>
         <button class="icon-btn" data-action="editar" title="Editar">✎</button>
       </div>

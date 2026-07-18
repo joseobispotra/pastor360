@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Visitas Pastorales - José Obispo</title>
+<meta name="theme-color" content="#16213e">
+<link rel="icon" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div id="loading" class="loading-screen">Cargando…</div>
+
+<div class="app-shell" id="app-shell" style="display:none">
+  <header class="topbar">
+    <div class="brand"><span class="crest">🐑</span> Visitas Pastorales</div>
+    <nav id="nav-links">
+      <a href="#/hoy" data-route="hoy">Hoy</a>
+      <a href="#/agendar" data-route="agendar">Agendar</a>
+      <a href="#/mensual" data-route="mensual">Mensual</a>
+    </nav>
+    <button class="logout-btn" id="logout-btn" type="button">Salir</button>
+  </header>
+
+  <main>
+    <!-- HOY -->
+    <section id="view-hoy" class="view">
+      <div class="hero-today">
+        <p class="eyebrow" id="saludo-eyebrow">Hola</p>
+        <h2 id="fecha-hoy">—</h2>
+        <p class="date-line" id="resumen-hoy-line">Cargando tu día…</p>
+        <div class="stat-row" id="stat-row"></div>
+      </div>
+
+      <div id="notif-banner-slot"></div>
+
+      <div class="card">
+        <div class="page-header">
+          <h2>Hoy debes visitar</h2>
+          <p>Visitas agendadas para hoy en las tres iglesias</p>
+        </div>
+        <ul class="visit-list" id="lista-hoy"></ul>
+      </div>
+    </section>
+
+    <!-- AGENDAR -->
+    <section id="view-agendar" class="view">
+      <div class="page-header">
+        <h2>Agendar visita</h2>
+        <p>Registra una nueva visita pastoral</p>
+      </div>
+      <div class="card">
+        <form id="form-visita">
+          <div class="form-grid">
+            <div class="form-field full">
+              <label>Iglesia</label>
+              <div class="church-tabs" id="iglesia-tabs" data-name="iglesia">
+                <div class="church-tab" data-value="Molinuevo">🟡 Molinuevo</div>
+                <div class="church-tab" data-value="Luz de Ozama">🔵 Luz de Ozama</div>
+                <div class="church-tab" data-value="Effatá">🟣 Effatá</div>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="fecha">Fecha</label>
+              <input type="date" id="fecha" required>
+            </div>
+            <div class="form-field">
+              <label for="hora">Hora</label>
+              <input type="time" id="hora" required>
+            </div>
+
+            <div class="form-field">
+              <label for="nombre">Feligrés / Familia</label>
+              <input type="text" id="nombre" placeholder="Nombre completo" required>
+            </div>
+            <div class="form-field">
+              <label for="telefono">Teléfono</label>
+              <input type="tel" id="telefono" placeholder="(809) 000-0000">
+            </div>
+
+            <div class="form-field full">
+              <label for="direccion">Dirección</label>
+              <input type="text" id="direccion" placeholder="Sector, calle, referencia">
+            </div>
+
+            <div class="form-field">
+              <label for="motivo">Motivo de la visita</label>
+              <select id="motivo">
+                <option>Seguimiento espiritual</option>
+                <option>Enfermedad</option>
+                <option>Duelo / condolencia</option>
+                <option>Bienvenida a nuevo miembro</option>
+                <option>Restauración</option>
+                <option>Petición de oración</option>
+                <option>Visita administrativa</option>
+                <option>Otro</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>&nbsp;</label>
+              <div class="check-row">
+                <input type="checkbox" id="requiere-seguimiento">
+                <label for="requiere-seguimiento" style="margin:0;font-weight:400;">Requiere fecha de seguimiento</label>
+              </div>
+              <input type="date" id="fecha-seguimiento" style="margin-top:8px;display:none;">
+            </div>
+
+            <div class="form-field full">
+              <label for="notas">Notas</label>
+              <textarea id="notas" placeholder="Detalles a tener en cuenta para esta visita..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-solid" id="btn-guardar-visita">Agendar visita</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- MENSUAL -->
+    <section id="view-mensual" class="view">
+      <div class="page-header">
+        <h2>Vista mensual</h2>
+        <p>Historial y estadísticas de tus visitas</p>
+      </div>
+
+      <div class="month-toolbar">
+        <div class="month-nav">
+          <button id="mes-prev" type="button">‹</button>
+          <span id="mes-label">—</span>
+          <button id="mes-next" type="button">›</button>
+        </div>
+        <div class="church-tabs" id="filtro-iglesia">
+          <div class="church-tab active" data-value="Todas">Todas</div>
+          <div class="church-tab" data-value="Molinuevo">Molinuevo</div>
+          <div class="church-tab" data-value="Luz de Ozama">Luz de Ozama</div>
+          <div class="church-tab" data-value="Effatá">Effatá</div>
+        </div>
+      </div>
+
+      <div class="split-view">
+        <div class="card">
+          <div class="page-header">
+            <h2>Visitas del mes</h2>
+          </div>
+          <ul class="visit-list" id="lista-mensual"></ul>
+        </div>
+
+        <div class="card chart-wrap">
+          <div class="page-header" style="align-self:flex-start;">
+            <h2>Distribución</h2>
+          </div>
+          <canvas id="grafico-pastel" width="220" height="220"></canvas>
+          <div class="legend-row" id="leyenda-pastel"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar" id="tabbar">
+    <a href="#/hoy" data-route="hoy"><span class="fab-icon">🏠</span>Hoy</a>
+    <a href="#/agendar" data-route="agendar"><span class="fab-icon">➕</span>Agendar</a>
+    <a href="#/mensual" data-route="mensual"><span class="fab-icon">📊</span>Mensual</a>
+  </nav>
+</div>
+
+<!-- Modal detalle / edición -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" id="modal-detalle">
+    <div class="modal-header">
+      <h3 id="modal-titulo">Visita</h3>
+      <button class="modal-close" id="modal-close" type="button">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module" src="js/firebase-config.js"></script>
+<script type="module" src="js/visitas.js"></script>
+<script type="module" src="js/modal.js"></script>
+<script type="module" src="js/dashboard.js"></script>
+<script type="module" src="js/mensual.js"></script>
+<script type="module" src="js/notificaciones.js"></script>
+<script type="module" src="js/app-shell.js"></script>
+</body>
+</html>

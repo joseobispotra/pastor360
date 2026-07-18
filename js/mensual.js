@@ -1,5 +1,6 @@
 import { listenVisitasRango, rangoMes, formatearFecha, colorClaseIglesia } from "./visitas.js";
 import { abrirDetalleVisita } from "./modal.js";
+import { listenPeticionesRespondidas } from "./peticiones.js";
 import { escapeHtml, nombreMes } from "./util.js";
 
 const COLORES = { "Molinuevo": "#c9a35e", "Luz de Ozama": "#4c7a9e", "Effatá": "#7a4c8e" };
@@ -112,5 +113,32 @@ export function initMensual() {
     cargarMes();
   });
 
+  listenPeticionesRespondidas(renderOracionesRespondidas);
+
   cargarMes();
+}
+
+function renderOracionesRespondidas(peticiones) {
+  const el = document.getElementById("lista-oraciones-respondidas");
+  if (!el) return;
+
+  const ordenadas = [...peticiones].sort(
+    (a, b) => (b.actualizadoEn?.toMillis?.() || 0) - (a.actualizadoEn?.toMillis?.() || 0)
+  );
+
+  el.innerHTML =
+    ordenadas.length === 0
+      ? `<div class="empty-state"><div class="glyph">🙏</div>Aún no tienes peticiones marcadas como respondidas.</div>`
+      : ordenadas
+          .map(
+            (p) => `
+      <li class="visit-item">
+        <div class="info">
+          <div class="name">${escapeHtml(p.texto)}</div>
+          <div class="meta">${p.deQuien ? escapeHtml(p.deQuien) : "Sin nombre"}</div>
+        </div>
+        <span class="badge badge-completada">Respondida</span>
+      </li>`
+          )
+          .join("");
 }

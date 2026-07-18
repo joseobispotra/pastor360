@@ -131,7 +131,7 @@ function renderSeguimientoHoy(visitas) {
 
 function seguimientoItemHtml(v) {
   const numero = telefonoWhatsApp(v.feligres?.telefono);
-  const mensaje = `Hola ${v.feligres?.nombre || ""}, quería saber cómo estás y darte seguimiento. Que Dios te bendiga.`;
+  const mensaje = `Hola ${v.feligres?.nombre || ""}, Dios te bendiga. Quería saber cómo estás, estoy orando por ti.`;
   return `
     <li class="visit-item">
       <span class="church-dot ${colorClaseIglesia(v.iglesia)}"></span>

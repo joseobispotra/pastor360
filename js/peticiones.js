@@ -7,6 +7,7 @@ import {
   doc,
   onSnapshot,
   orderBy,
+  where,
   query,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
@@ -48,6 +49,13 @@ export async function alternarEstadoPeticion(peticion) {
 
 export async function eliminarPeticion(id) {
   return deleteDoc(doc(db, "peticiones", id));
+}
+
+/** Peticiones ya respondidas, para el apartado de "Oraciones contestadas" en Mensual.
+ * Un solo filtro de igualdad, así que no requiere ningún índice compuesto. */
+export function listenPeticionesRespondidas(callback) {
+  const q = query(col, where("estado", "==", "respondida"));
+  return onSnapshot(q, (snap) => callback(snap.docs.map(mapDoc)));
 }
 
 export function initPeticiones() {

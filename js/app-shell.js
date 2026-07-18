@@ -3,7 +3,7 @@ import { initDashboard } from "./dashboard.js";
 import { initMensual } from "./mensual.js";
 import { initNotificaciones } from "./notificaciones.js";
 import { crearVisita } from "./visitas.js";
-import { initMiembros, obtenerMiembrosCache } from "./miembros.js";
+import { initMiembros, obtenerOCrearMiembro } from "./miembros.js";
 import { initPeticiones } from "./peticiones.js";
 import { mostrarToast } from "./toast.js";
 
@@ -53,9 +53,7 @@ function wireFormAgendar() {
   const tabs = document.querySelectorAll("#iglesia-tabs .church-tab");
   const chkSeguimiento = document.getElementById("requiere-seguimiento");
   const fechaSeguimiento = document.getElementById("fecha-seguimiento");
-  const miembroBuscar = document.getElementById("miembro-buscar");
   let iglesiaSeleccionada = null;
-  let miembroSeleccionadoId = null;
 
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -63,22 +61,6 @@ function wireFormAgendar() {
       tab.classList.add("active");
       iglesiaSeleccionada = tab.dataset.value;
     });
-  });
-
-  miembroBuscar.addEventListener("input", () => {
-    const miembro = obtenerMiembrosCache().find(
-      (m) => `${m.nombre} — ${m.iglesia}` === miembroBuscar.value
-    );
-    if (!miembro) {
-      miembroSeleccionadoId = null;
-      return;
-    }
-    miembroSeleccionadoId = miembro.id;
-    document.getElementById("nombre").value = miembro.nombre;
-    document.getElementById("telefono").value = miembro.telefono || "";
-    document.getElementById("direccion").value = miembro.direccion || "";
-    tabs.forEach((t) => t.classList.toggle("active", t.dataset.value === miembro.iglesia));
-    iglesiaSeleccionada = miembro.iglesia;
   });
 
   chkSeguimiento.addEventListener("change", () => {
@@ -110,29 +92,39 @@ function wireFormAgendar() {
       fechaSeguimientoDate = new Date(sy, sm - 1, sd);
     }
 
+    const nombre = document.getElementById("nombre").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
+    const direccion = document.getElementById("direccion").value.trim();
+
     const btn = document.getElementById("btn-guardar-visita");
     btn.disabled = true;
     btn.textContent = "Guardando...";
 
     try {
+      const miembroId = await obtenerOCrearMiembro({
+        nombre,
+        telefono,
+        direccion,
+        iglesia: iglesiaSeleccionada,
+      });
+
       await crearVisita({
         iglesia: iglesiaSeleccionada,
         fecha,
-        nombre: document.getElementById("nombre").value.trim(),
-        telefono: document.getElementById("telefono").value.trim(),
-        direccion: document.getElementById("direccion").value.trim(),
+        nombre,
+        telefono,
+        direccion,
         motivo: document.getElementById("motivo").value,
         notas: document.getElementById("notas").value.trim(),
         requiereSeguimiento: chkSeguimiento.checked,
         fechaSeguimiento: fechaSeguimientoDate,
-        miembroId: miembroSeleccionadoId,
+        miembroId,
       });
 
-      mostrarToast("Visita agendada.");
+      mostrarToast("Visita agendada. Se actualizó tu directorio de miembros.");
       form.reset();
       tabs.forEach((t) => t.classList.remove("active"));
       iglesiaSeleccionada = null;
-      miembroSeleccionadoId = null;
       fechaSeguimiento.style.display = "none";
       location.hash = "#/hoy";
     } catch (err) {

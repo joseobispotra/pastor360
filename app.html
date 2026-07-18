@@ -93,12 +93,6 @@
               <input type="time" id="hora" required>
             </div>
 
-            <div class="form-field full">
-              <label for="miembro-buscar">Feligrés registrado (opcional)</label>
-              <input type="text" id="miembro-buscar" list="miembros-datalist" placeholder="Escribe para buscar en tu directorio de miembros...">
-              <datalist id="miembros-datalist"></datalist>
-            </div>
-
             <div class="form-field">
               <label for="nombre">Feligrés / Familia</label>
               <input type="text" id="nombre" placeholder="Nombre completo" required>
@@ -222,6 +216,14 @@
           <canvas id="grafico-pastel" width="220" height="220"></canvas>
           <div class="legend-row" id="leyenda-pastel"></div>
         </div>
+      </div>
+
+      <div class="card">
+        <div class="page-header">
+          <h2>Oraciones contestadas</h2>
+          <p>Peticiones que Dios ha respondido</p>
+        </div>
+        <ul class="visit-list" id="lista-oraciones-respondidas"></ul>
       </div>
     </section>
   </main>

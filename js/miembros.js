@@ -54,6 +54,31 @@ export async function eliminarMiembro(id) {
   return deleteDoc(doc(db, "miembros", id));
 }
 
+/**
+ * Busca un miembro existente por nombre + iglesia (para ir formando el directorio
+ * automáticamente con cada visita). Si existe, completa teléfono/dirección que falten
+ * y devuelve su id. Si no existe, lo crea.
+ */
+export async function obtenerOCrearMiembro({ nombre, telefono, direccion, iglesia }) {
+  const nombreNormalizado = nombre.trim().toLowerCase();
+  const existente = miembrosCache.find(
+    (m) => m.nombre.trim().toLowerCase() === nombreNormalizado && m.iglesia === iglesia
+  );
+
+  if (existente) {
+    const actualizaciones = {};
+    if (!existente.telefono && telefono) actualizaciones.telefono = telefono;
+    if (!existente.direccion && direccion) actualizaciones.direccion = direccion;
+    if (Object.keys(actualizaciones).length > 0) {
+      await actualizarMiembro(existente.id, actualizaciones);
+    }
+    return existente.id;
+  }
+
+  const nuevo = await crearMiembro({ nombre, telefono, direccion, iglesia });
+  return nuevo.id;
+}
+
 export function initMiembros() {
   const listaEl = document.getElementById("lista-miembros");
 
@@ -64,13 +89,6 @@ export function initMiembros() {
       miembros.length === 0
         ? `<div class="empty-state"><div class="glyph">👤</div>Aún no has agregado miembros. Comienza con "Nuevo miembro".</div>`
         : miembros.map(itemHtml).join("");
-
-    const datalist = document.getElementById("miembros-datalist");
-    if (datalist) {
-      datalist.innerHTML = miembros
-        .map((m) => `<option value="${escapeHtml(m.nombre)} — ${escapeHtml(m.iglesia)}"></option>`)
-        .join("");
-    }
   });
 
   listaEl.addEventListener("click", (e) => {

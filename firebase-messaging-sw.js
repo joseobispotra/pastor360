@@ -5,12 +5,12 @@ importScripts("https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js
 importScripts("https://www.gstatic.com/firebasejs/10.13.0/firebase-messaging-compat.js");
 
 firebase.initializeApp({
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID",
+  apiKey: "AIzaSyA8JwOyOgw78eC3PQ3kMAXK-njGcOUsAKY",
+  authDomain: "visitas-pastorales-65a3b.firebaseapp.com",
+  projectId: "visitas-pastorales-65a3b",
+  storageBucket: "visitas-pastorales-65a3b.firebasestorage.app",
+  messagingSenderId: "359148626098",
+  appId: "1:359148626098:web:16d5de0d07b589a671e9ab",
 });
 
 const messaging = firebase.messaging();

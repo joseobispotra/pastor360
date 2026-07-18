@@ -6,17 +6,17 @@ import { getMessaging, isSupported } from "https://www.gstatic.com/firebasejs/10
 // 1) Pega aquí la configuración de tu proyecto Firebase.
 //    (Firebase Console > Configuración del proyecto > Tus apps > Config del SDK)
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID",
+  apiKey: "AIzaSyA8JwOyOgw78eC3PQ3kMAXK-njGcOUsAKY",
+  authDomain: "visitas-pastorales-65a3b.firebaseapp.com",
+  projectId: "visitas-pastorales-65a3b",
+  storageBucket: "visitas-pastorales-65a3b.firebasestorage.app",
+  messagingSenderId: "359148626098",
+  appId: "1:359148626098:web:16d5de0d07b589a671e9ab",
 };
 
 // 2) Pega aquí la VAPID key.
 //    (Firebase Console > Cloud Messaging > Certificados push web > Generar par de claves)
-export const VAPID_KEY = "TU_VAPID_KEY";
+export const VAPID_KEY = "BHZnnQtD8uPiNXBz2s8ili1SOdjBknfRcdar2fU1NCyUtVZIkFg3Vq5U3nP6RVuRoaziTyY41MGX8auBDkVza10";
 
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);

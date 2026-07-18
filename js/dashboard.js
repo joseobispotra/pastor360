@@ -12,7 +12,7 @@ import {
 import { abrirDetalleVisita } from "./modal.js";
 import { listenMiembros, registrarContacto } from "./miembros.js";
 import { mostrarToast } from "./toast.js";
-import { escapeHtml, saludoSegunHora, fechaLarga } from "./util.js";
+import { escapeHtml, saludoSegunHora, fechaLarga, telefonoWhatsApp } from "./util.js";
 import { notificarVisitasHoy } from "./notificaciones.js";
 import { versiculoDeHoy } from "./versiculos.js";
 
@@ -180,12 +180,6 @@ function renderVersiculo() {
     <p class="verse-text">"${escapeHtml(v.texto)}"</p>
     <p class="verse-ref">${escapeHtml(v.referencia)} <span class="verse-copyright">· NVI © Biblica, Inc.®</span></p>
   `;
-}
-
-function telefonoWhatsApp(telefono) {
-  const digitos = (telefono || "").replace(/\D/g, "");
-  if (!digitos) return null;
-  return digitos.length === 10 ? `1${digitos}` : digitos;
 }
 
 function esHoy(fecha) {

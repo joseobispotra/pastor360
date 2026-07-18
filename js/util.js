@@ -27,3 +27,11 @@ export function nombreMes(year, monthIndex) {
   });
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
+
+/** Normaliza un teléfono dominicano a formato internacional para wa.me
+ * (antepone "1" si son 10 dígitos). Devuelve null si no hay número. */
+export function telefonoWhatsApp(telefono) {
+  const digitos = (telefono || "").replace(/\D/g, "");
+  if (!digitos) return null;
+  return digitos.length === 10 ? `1${digitos}` : digitos;
+}

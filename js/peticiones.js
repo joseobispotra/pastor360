@@ -12,7 +12,7 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { mostrarToast } from "./toast.js";
-import { escapeHtml } from "./util.js";
+import { escapeHtml, telefonoWhatsApp } from "./util.js";
 
 const col = collection(db, "peticiones");
 let peticionesCache = [];
@@ -33,6 +33,8 @@ export async function crearPeticion(datos) {
   return addDoc(col, {
     texto: datos.texto || "",
     deQuien: datos.deQuien || "",
+    telefono: datos.telefono || "",
+    iglesia: datos.iglesia || "",
     estado: "activa",
     creadoEn: serverTimestamp(),
     actualizadoEn: serverTimestamp(),
@@ -61,6 +63,19 @@ export function listenPeticionesRespondidas(callback) {
 export function initPeticiones() {
   const listaEl = document.getElementById("lista-oracion");
   const form = document.getElementById("form-peticion");
+  const tabs = document.querySelectorAll("#peticion-iglesia-tabs .church-tab");
+  const iglesiaOtra = document.getElementById("peticion-iglesia-otra");
+  let iglesiaSel = null;
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      tabs.forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+      iglesiaSel = tab.dataset.value;
+      iglesiaOtra.style.display = iglesiaSel === "Otra" ? "block" : "none";
+      if (iglesiaSel !== "Otra") iglesiaOtra.value = "";
+    });
+  });
 
   listenPeticiones((peticiones) => {
     listaEl.innerHTML =
@@ -73,11 +88,26 @@ export function initPeticiones() {
     e.preventDefault();
     const textoEl = document.getElementById("peticion-texto");
     const deQuienEl = document.getElementById("peticion-de-quien");
+    const telefonoEl = document.getElementById("peticion-telefono");
     const texto = textoEl.value.trim();
     if (!texto) return;
-    await crearPeticion({ texto, deQuien: deQuienEl.value.trim() });
+
+    const iglesia = iglesiaSel === "Otra" ? iglesiaOtra.value.trim() : iglesiaSel || "";
+
+    await crearPeticion({
+      texto,
+      deQuien: deQuienEl.value.trim(),
+      telefono: telefonoEl.value.trim(),
+      iglesia,
+    });
+
     textoEl.value = "";
     deQuienEl.value = "";
+    telefonoEl.value = "";
+    tabs.forEach((t) => t.classList.remove("active"));
+    iglesiaSel = null;
+    iglesiaOtra.style.display = "none";
+    iglesiaOtra.value = "";
     mostrarToast("Petición agregada.");
   });
 
@@ -98,14 +128,22 @@ export function initPeticiones() {
 
 function itemHtml(p) {
   const respondida = p.estado === "respondida";
+  const numeroWa = telefonoWhatsApp(p.telefono);
+  const numeroTel = (p.telefono || "").replace(/\D/g, "");
+  const mensaje = `Hola ${p.deQuien || ""}, quería decirte que he estado orando por tu petición${p.texto ? `: "${p.texto}"` : ""}. Dios te bendiga.`;
+  const metaPartes = [p.deQuien || "Sin nombre"];
+  if (p.iglesia) metaPartes.push(p.iglesia);
+
   return `
     <li class="visit-item" data-id="${p.id}" style="${respondida ? "opacity:.6;" : ""}">
       <div class="info">
         <div class="name" style="${respondida ? "text-decoration:line-through;" : ""}">${escapeHtml(p.texto)}</div>
-        <div class="meta">${p.deQuien ? escapeHtml(p.deQuien) : "Sin nombre"}</div>
+        <div class="meta">${escapeHtml(metaPartes.join(" · "))}</div>
       </div>
       <span class="badge badge-${respondida ? "completada" : "pendiente"}">${respondida ? "Respondida" : "Activa"}</span>
       <div class="actions">
+        ${numeroTel ? `<a class="btn btn-outline btn-llamar" href="tel:${numeroTel}">Llamar</a>` : ""}
+        ${numeroWa ? `<a class="btn btn-whatsapp" href="https://wa.me/${numeroWa}?text=${encodeURIComponent(mensaje)}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
         <button class="icon-btn" data-action="toggle" title="${respondida ? "Reabrir" : "Marcar respondida"}">${respondida ? "↺" : "✓"}</button>
         <button class="icon-btn" data-action="eliminar" title="Eliminar">🗑</button>
       </div>

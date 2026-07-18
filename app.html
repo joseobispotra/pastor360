@@ -169,12 +169,26 @@
             <label for="peticion-texto">Petición</label>
             <input type="text" id="peticion-texto" placeholder="Ej. Salud de la hermana Rosa" required>
           </div>
+          <div class="form-field full">
+            <label>Iglesia (opcional)</label>
+            <div class="church-tabs" id="peticion-iglesia-tabs">
+              <div class="church-tab" data-value="Molinuevo">🟡 Molinuevo</div>
+              <div class="church-tab" data-value="Luz de Ozama">🔵 Luz de Ozama</div>
+              <div class="church-tab" data-value="Effatá">🟣 Effatá</div>
+              <div class="church-tab" data-value="Otra">Otra</div>
+            </div>
+            <input type="text" id="peticion-iglesia-otra" placeholder="Nombre de la iglesia" style="margin-top:8px;display:none;">
+          </div>
           <div class="form-field">
             <label for="peticion-de-quien">De quién (opcional)</label>
             <input type="text" id="peticion-de-quien" placeholder="Nombre">
           </div>
-          <div class="form-field" style="justify-content:flex-end;display:flex;">
-            <button type="submit" class="btn btn-solid" style="margin-top:auto;">Agregar petición</button>
+          <div class="form-field">
+            <label for="peticion-telefono">Teléfono (opcional)</label>
+            <input type="tel" id="peticion-telefono" placeholder="(809) 000-0000">
+          </div>
+          <div class="form-field full" style="display:flex;justify-content:flex-end;">
+            <button type="submit" class="btn btn-solid" style="width:auto;">Agregar petición</button>
           </div>
         </form>
         <ul class="visit-list" id="lista-oracion"></ul>

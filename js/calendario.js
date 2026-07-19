@@ -46,6 +46,7 @@ export async function crearEvento(datos) {
     lugar: datos.lugar || "General",
     categoria: datos.categoria || "Otro",
     notas: datos.notas || "",
+    realizado: false,
     creadoEn: serverTimestamp(),
     actualizadoEn: serverTimestamp(),
   });
@@ -110,6 +111,10 @@ export function initCalendario() {
       return;
     }
     if (accionEl?.dataset.action === "gcal") return; // deja que el enlace abra Google Calendar normalmente
+    if (accionEl?.dataset.action === "realizado") {
+      actualizarEvento(item.raw.id, { realizado: !item.raw.realizado });
+      return;
+    }
 
     abrirEditor(item);
   });
@@ -125,6 +130,7 @@ function normalizarEvento(ev) {
     titulo: ev.titulo,
     etiqueta: ev.categoria,
     lugar: ev.lugar,
+    realizado: ev.realizado || false,
     raw: ev,
   };
 }
@@ -179,6 +185,8 @@ function renderLista(listaEl) {
 
 function itemHtml(item) {
   const pasado = item.fechaInicio < new Date();
+  const esEvento = item.origen === "evento";
+  const atenuado = pasado || item.realizado;
   const enlaceGcal = enlaceGoogleCalendar({
     titulo: item.titulo,
     inicio: item.fechaInicio,
@@ -187,7 +195,7 @@ function itemHtml(item) {
     ubicacion: item.lugar || "",
   });
   return `
-    <li class="visit-item" data-origen="${item.origen}" data-id="${item.id}"${pasado ? ' style="opacity:.6;"' : ""}>
+    <li class="visit-item" data-origen="${item.origen}" data-id="${item.id}"${atenuado ? ' style="opacity:.6;"' : ""}>
       <div class="info">
         <div class="name">${escapeHtml(item.titulo)}</div>
         <div class="meta">${escapeHtml(item.etiqueta)}${item.lugar ? " · " + escapeHtml(item.lugar) : ""}</div>
@@ -196,8 +204,9 @@ function itemHtml(item) {
       <div class="actions">
         <a class="icon-btn" data-action="gcal" href="${enlaceGcal}" target="_blank" rel="noopener" title="Agregar a Google Calendar">📅</a>
         <button class="icon-btn" data-action="ics" type="button" title="Descargar .ics (Apple/Outlook)">⬇️</button>
+        ${esEvento ? `<button class="icon-btn" data-action="realizado" type="button" title="${item.realizado ? "Marcar pendiente" : "Marcar como realizado"}">${item.realizado ? "↺" : "✓"}</button>` : ""}
       </div>
-      ${pasado ? `<span class="badge badge-reprogramada">Pasado</span>` : ""}
+      ${item.realizado ? `<span class="badge badge-completada">Realizado</span>` : pasado ? `<span class="badge badge-reprogramada">Pasado</span>` : ""}
     </li>
   `;
 }

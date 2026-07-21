@@ -124,6 +124,10 @@ export function listenContactosRango(inicio, fin, callback) {
   return onSnapshot(q, (snap) => callback(snap.docs.map(mapDoc)));
 }
 
+export async function eliminarContacto(id) {
+  return deleteDoc(doc(db, "contactos", id));
+}
+
 function diasDesde(fecha) {
   const d = fecha?.toDate ? fecha.toDate() : new Date(fecha);
   const dias = Math.floor((Date.now() - d.getTime()) / 86400000);

@@ -1,5 +1,5 @@
 import { listenVisitasRango, rangoMes, formatearFecha, formatearHora, colorClaseIglesia } from "./visitas.js";
-import { listenContactosRango, listenMiembros, registrarContacto } from "./miembros.js";
+import { listenContactosRango, listenMiembros, registrarContacto, eliminarContacto } from "./miembros.js";
 import { abrirDetalleVisita } from "./modal.js";
 import { listenPeticionesRespondidas } from "./peticiones.js";
 import { mostrarToast } from "./toast.js";
@@ -112,16 +112,31 @@ export function initMensual() {
   function itemHtmlLlamada(c) {
     const esLlamada = c.tipo === "llamada";
     return `
-      <li class="visit-item">
+      <li class="visit-item" data-id="${c.id}">
         <span class="church-dot ${colorClaseIglesia(c.iglesia)}"></span>
         <div class="info">
           <div class="name">${escapeHtml(c.nombre || "(sin nombre)")}</div>
           <div class="meta">${escapeHtml(c.iglesia)} · ${formatearFecha(c.fecha)}</div>
+          ${c.notas ? `<div class="meta">${escapeHtml(c.notas)}</div>` : ""}
         </div>
         <span class="badge badge-${esLlamada ? "pendiente" : "en_progreso"}">${esLlamada ? "📞 Llamada" : "💬 Mensaje"}</span>
+        <div class="actions">
+          <button class="icon-btn" data-action="eliminar-contacto" title="Eliminar registro">🗑</button>
+        </div>
       </li>
     `;
   }
+
+  listaLlamadasEl.addEventListener("click", async (e) => {
+    const btn = e.target.closest("[data-action]");
+    const li = e.target.closest(".visit-item");
+    if (!btn || !li) return;
+    if (btn.dataset.action === "eliminar-contacto") {
+      if (!confirm("¿Eliminar este registro de llamada/mensaje?")) return;
+      await eliminarContacto(li.dataset.id);
+      mostrarToast("Registro eliminado.");
+    }
+  });
 
   listaEl.addEventListener("click", (e) => {
     const li = e.target.closest(".visit-item");
@@ -184,6 +199,7 @@ export function initMensual() {
         <div class="info">
           <div class="name">${escapeHtml(m.nombre)}</div>
           <div class="meta">${escapeHtml(m.iglesia)} · Programada: ${formatearFecha(m.proximoContacto)} · ${formatearHora(m.proximoContacto)}</div>
+          ${m.notasProximoContacto ? `<div class="meta">${escapeHtml(m.notasProximoContacto)}</div>` : ""}
         </div>
         <button class="icon-btn" data-action="hecho" title="Marcar como realizado">✓</button>
       </li>

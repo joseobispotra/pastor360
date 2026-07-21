@@ -1,4 +1,4 @@
-import { listenVisitasRango, rangoMes, formatearFecha, colorClaseIglesia } from "./visitas.js";
+import { listenVisitasRango, rangoMes, formatearFecha, formatearHora, colorClaseIglesia } from "./visitas.js";
 import { listenContactosRango, listenMiembros, registrarContacto } from "./miembros.js";
 import { abrirDetalleVisita } from "./modal.js";
 import { listenPeticionesRespondidas } from "./peticiones.js";
@@ -183,7 +183,7 @@ export function initMensual() {
         <span class="church-dot ${colorClaseIglesia(m.iglesia)}"></span>
         <div class="info">
           <div class="name">${escapeHtml(m.nombre)}</div>
-          <div class="meta">${escapeHtml(m.iglesia)} · Programada: ${formatearFecha(m.proximoContacto)}</div>
+          <div class="meta">${escapeHtml(m.iglesia)} · Programada: ${formatearFecha(m.proximoContacto)} · ${formatearHora(m.proximoContacto)}</div>
         </div>
         <button class="icon-btn" data-action="hecho" title="Marcar como realizado">✓</button>
       </li>

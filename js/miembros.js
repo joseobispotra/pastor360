@@ -12,7 +12,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-import { IGLESIAS, colorClaseIglesia, formatearFecha } from "./visitas.js";
+import { IGLESIAS, colorClaseIglesia, formatearFecha, formatearHora } from "./visitas.js";
 import { cerrarModal } from "./modal.js";
 import { mostrarToast } from "./toast.js";
 import { escapeHtml, telefonoWhatsApp } from "./util.js";
@@ -166,7 +166,9 @@ function itemHtml(m) {
   const ultimoTexto = m.ultimoContacto
     ? `Último contacto: ${diasDesde(m.ultimoContacto.fecha)} (${m.ultimoContacto.tipo === "llamada" ? "llamada" : "mensaje"})`
     : "";
-  const proximoTexto = m.proximoContacto ? `Próxima llamada: ${formatearFecha(m.proximoContacto)}` : "";
+  const proximoTexto = m.proximoContacto
+    ? `Próxima llamada: ${formatearFecha(m.proximoContacto)} · ${formatearHora(m.proximoContacto)}`
+    : "";
   const numeroWa = telefonoWhatsApp(m.telefono);
   const numeroTel = (m.telefono || "").replace(/\D/g, "");
   const mensaje = `Hola ${m.nombre || ""}, soy el pastor. Quería saludarte y saber cómo estás. Dios te bendiga.`;
@@ -271,9 +273,13 @@ function abrirFormularioProgramar(miembro) {
   document.getElementById("modal-titulo").textContent = `Programar llamada — ${miembro.nombre}`;
   document.getElementById("modal-body").innerHTML = `
     <div class="form-grid">
-      <div class="form-field full">
+      <div class="form-field">
         <label>Fecha</label>
         <input type="date" id="p-fecha" value="${miembro.proximoContacto ? toDateInputValue(miembro.proximoContacto) : ""}">
+      </div>
+      <div class="form-field">
+        <label>Hora</label>
+        <input type="time" id="p-hora" value="${miembro.proximoContacto ? toTimeInputValue(miembro.proximoContacto) : "09:00"}">
       </div>
       <div class="form-field full">
         <label>Notas (opcional)</label>
@@ -292,9 +298,11 @@ function abrirFormularioProgramar(miembro) {
       mostrarToast("Selecciona la fecha de la llamada.");
       return;
     }
+    const horaVal = document.getElementById("p-hora").value || "09:00";
     const [y, mo, d] = fechaVal.split("-").map(Number);
+    const [hh, mm] = horaVal.split(":").map(Number);
     await programarProximoContacto(miembro.id, {
-      fecha: new Date(y, mo - 1, d),
+      fecha: new Date(y, mo - 1, d, hh, mm),
       notas: document.getElementById("p-notas").value.trim(),
     });
     mostrarToast("Llamada programada.");
@@ -314,6 +322,12 @@ function toDateInputValue(fecha) {
   const d = fecha?.toDate ? fecha.toDate() : new Date(fecha);
   const pad = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function toTimeInputValue(fecha) {
+  const d = fecha?.toDate ? fecha.toDate() : new Date(fecha);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function abrirFormularioContacto(miembro) {

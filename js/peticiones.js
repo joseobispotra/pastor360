@@ -142,8 +142,8 @@ function itemHtml(p) {
       </div>
       <span class="badge badge-${respondida ? "completada" : "pendiente"}">${respondida ? "Respondida" : "Activa"}</span>
       <div class="actions">
-        ${numeroTel ? `<a class="btn btn-outline btn-llamar" href="tel:${numeroTel}">Llamar</a>` : ""}
-        ${numeroWa ? `<a class="btn btn-whatsapp" href="https://wa.me/${numeroWa}?text=${encodeURIComponent(mensaje)}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
+        ${numeroTel ? `<a class="btn-llamar" href="tel:${numeroTel}" title="Llamar"></a>` : ""}
+        ${numeroWa ? `<a class="btn-whatsapp" href="https://wa.me/${numeroWa}?text=${encodeURIComponent(mensaje)}" target="_blank" rel="noopener" title="WhatsApp"></a>` : ""}
         <button class="icon-btn" data-action="toggle" title="${respondida ? "Reabrir" : "Marcar respondida"}">${respondida ? "↺" : "✓"}</button>
         <button class="icon-btn" data-action="eliminar" title="Eliminar">🗑</button>
       </div>

@@ -335,7 +335,7 @@ button { font-family: inherit; }
   white-space: nowrap;
   flex-shrink: 0;
 }
-.visit-item .actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: auto; }
+.visit-item .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; flex-shrink: 0; margin-left: auto; max-width: 100%; }
 .icon-btn {
   border: none;
   background: rgba(0,0,0,0.05);
@@ -581,14 +581,12 @@ a.icon-btn { text-decoration: none; }
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  width: 40px; height: 40px;
   background: #25d366;
   color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 8px 14px;
-  border-radius: 20px;
-  white-space: nowrap;
+  font-size: 18px;
+  border-radius: 12px;
 }
 .btn-whatsapp:hover { background: #1ebc59; }
 .btn-whatsapp::before { content: "💬"; }
@@ -597,15 +595,12 @@ a.icon-btn { text-decoration: none; }
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: 1px solid var(--navy);
+  justify-content: center;
+  width: 40px; height: 40px;
+  background: rgba(0,0,0,0.05);
   color: var(--navy);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 14px;
-  border-radius: 20px;
-  white-space: nowrap;
+  font-size: 18px;
+  border-radius: 12px;
 }
 .btn-llamar:hover { background: rgba(22,33,62,0.06); }
 .btn-llamar::before { content: "📞"; }

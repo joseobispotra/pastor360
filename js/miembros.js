@@ -180,8 +180,8 @@ function itemHtml(m) {
         ${proximoTexto ? `<div class="meta proximo-contacto">${proximoTexto}</div>` : ""}
       </div>
       <div class="actions">
-        ${numeroTel ? `<a class="btn btn-outline btn-llamar" data-action="llamar" href="tel:${numeroTel}">Llamar</a>` : ""}
-        ${numeroWa ? `<a class="btn btn-whatsapp" data-action="whatsapp" href="https://wa.me/${numeroWa}?text=${encodeURIComponent(mensaje)}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
+        ${numeroTel ? `<a class="btn-llamar" data-action="llamar" href="tel:${numeroTel}" title="Llamar"></a>` : ""}
+        ${numeroWa ? `<a class="btn-whatsapp" data-action="whatsapp" href="https://wa.me/${numeroWa}?text=${encodeURIComponent(mensaje)}" target="_blank" rel="noopener" title="WhatsApp"></a>` : ""}
         <button class="icon-btn" data-action="programar" title="Programar llamada">🗓️</button>
         <button class="icon-btn" data-action="contacto" title="Registrar contacto">📝</button>
         <button class="icon-btn" data-action="editar" title="Editar">✎</button>

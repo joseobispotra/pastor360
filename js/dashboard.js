@@ -281,8 +281,8 @@ function contactoItemHtml(c) {
         <div class="meta">${escapeHtml(c.iglesia || "")} · ${escapeHtml(c.detalle)}</div>
       </div>
       <div class="actions" style="gap:6px;">
-        ${numeroTel ? `<a class="btn btn-outline btn-llamar" href="tel:${numeroTel}">Llamar</a>` : ""}
-        ${numeroWa ? `<a class="btn btn-whatsapp" href="https://wa.me/${numeroWa}?text=${encodeURIComponent(mensaje)}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
+        ${numeroTel ? `<a class="btn-llamar" href="tel:${numeroTel}" title="Llamar"></a>` : ""}
+        ${numeroWa ? `<a class="btn-whatsapp" href="https://wa.me/${numeroWa}?text=${encodeURIComponent(mensaje)}" target="_blank" rel="noopener" title="WhatsApp"></a>` : ""}
         ${!numeroTel && !numeroWa ? `<span class="meta">Sin teléfono</span>` : ""}
         <button class="icon-btn" data-action="hecho" title="Marcar como realizado">✓</button>
       </div>
